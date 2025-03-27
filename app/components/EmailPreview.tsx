@@ -1,5 +1,19 @@
-import { Email } from '@prisma/client';
 import EmailStatus from './EmailStatus';
+
+interface Email {
+  id: string;
+  customerId: string;
+  customer: {
+    firstName: string;
+    lastName: string;
+  };
+  subject: string;
+  status: 'pending' | 'sent' | 'failed';
+  createdAt: string;
+  emailType: string;
+  body: string;
+  updatedAt: string;
+}
 
 interface EmailPreviewProps {
   email: Email;
@@ -31,7 +45,7 @@ export default function EmailPreview({ email, onClose }: EmailPreviewProps) {
                   <h3 className="text-lg font-semibold leading-6 text-gray-900 dark:text-white">
                     Email Preview
                   </h3>
-                  <EmailStatus status={email.isSent ? 'sent' : 'pending'} />
+                  <EmailStatus status={email.status} />
                 </div>
 
                 <div className="mt-4 space-y-4">

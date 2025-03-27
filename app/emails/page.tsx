@@ -6,6 +6,7 @@ import GenerateEmailModal from '../components/GenerateEmailModal';
 import EmailStatus from '../components/EmailStatus';
 import EmailFilters, { EmailFilters as EmailFiltersType } from '../components/EmailFilters';
 import Pagination from '../components/Pagination';
+import EmailPreview from '../components/EmailPreview';
 
 interface Email {
   id: string;
@@ -19,6 +20,7 @@ interface Email {
   createdAt: string;
   emailType: string;
   body: string;
+  updatedAt: string;
 }
 
 interface PaginationData {
@@ -56,6 +58,8 @@ export default function EmailsPage() {
     key: 'createdAt',
     direction: 'desc'
   });
+  const [isSending, setIsSending] = useState(false);
+  const [previewEmail, setPreviewEmail] = useState<Email | null>(null);
 
   useEffect(() => {
     fetchEmails();
@@ -162,6 +166,29 @@ export default function EmailsPage() {
     setCurrentPage(1); // Reset to first page when changing page size
   };
 
+  const handleSendAllPending = async () => {
+    setIsSending(true);
+    try {
+      const response = await fetch('/api/emails/send', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send emails');
+      }
+
+      const data = await response.json();
+      console.log('Sent emails:', data);
+      
+      // Refresh the email list
+      await fetchEmails();
+    } catch (error) {
+      console.error('Error sending emails:', error);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   const SortIcon = ({ columnKey }: { columnKey: SortConfig['key'] }) => {
     if (sortConfig.key !== columnKey) {
       return <span className="ml-1 text-gray-400">↕</span>;
@@ -186,8 +213,12 @@ export default function EmailsPage() {
           >
             Generate Welcome Emails
           </button>
-          <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-            Send All Pending
+          <button
+            onClick={handleSendAllPending}
+            disabled={isSending || emails.filter(email => email.status === 'pending').length === 0}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSending ? 'Sending...' : 'Send All Pending'}
           </button>
         </div>
       </div>
@@ -284,7 +315,10 @@ export default function EmailsPage() {
                       {new Date(email.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                      <button 
+                        onClick={() => setPreviewEmail(email)}
+                        className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                      >
                         View
                       </button>
                     </td>
@@ -309,6 +343,13 @@ export default function EmailsPage() {
         onClose={() => setIsGenerateModalOpen(false)}
         onGenerate={handleGenerateEmails}
       />
+
+      {previewEmail && (
+        <EmailPreview
+          email={previewEmail}
+          onClose={() => setPreviewEmail(null)}
+        />
+      )}
     </main>
   );
 } 
