@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Customer {
+  id                      String   @id @default(cuid())
+  firstName               String
+  lastName                String
+  zipCode                 String
+  phoneNumber             String
+  email                   String   @unique
+  age                     Int
+  gender                  String
+  preferredProducts       String   // Comma-separated list of products
+  primaryReason          String
+  frequencyOfUse          String
+  preferredShoppingMethod String
+  discoveryMethod         String
+  incomeRange             String
+  occupation              String
+  educationLevel          String
+  preferredCommunication  String
+  interestsHobbies        String   // Comma-separated list
+  loyaltyProgramMember    Boolean
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  emails                  Email[]
+}
+
+model Email {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  emailType  String   // welcome, follow-up, promotional
+  subject    String
+  body       String
+  status     String   // pending, sent, failed
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}

@@ -1,103 +1,203 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from 'react';
+import DashboardCard from './components/DashboardCard';
+import { UserGroupIcon, HeartIcon, UserIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
+import DemographicCharts from './components/DemographicCharts';
+
+interface Stats {
+  totalCustomers: number;
+  loyaltyMembers: number;
+  totalEmails: number;
+  sentToday: number;
+  engagementMetrics: {
+    loyaltyRate: number;
+    averageAge: number;
+    mostPopularProduct: string;
+    mostCommonReason: string;
+    preferredShoppingChannel: string;
+    topDiscoveryMethod: string;
+  };
+  demographics: {
+    ageGroups: {
+      '18-24': number;
+      '25-34': number;
+      '35-44': number;
+      '45-54': number;
+      '55+': number;
+    };
+    genderDistribution: {
+      'Male': number;
+      'Female': number;
+      'Other': number;
+    };
+    incomeDistribution: {
+      'Under $25,000': number;
+      '$25,000 - $50,000': number;
+      '$50,000 - $75,000': number;
+      '$75,000 - $100,000': number;
+      'Over $100,000': number;
+    };
+    educationDistribution: {
+      'High School': number;
+      'Some College': number;
+      "Bachelor's Degree": number;
+      "Master's Degree": number;
+      'Doctorate': number;
+    };
+    productPreferences: {
+      'CBD Oil': number;
+      'Hemp-infused Edibles': number;
+      'Topical Creams': number;
+      'Hemp Flower': number;
+      'Hemp Clothing/Textiles': number;
+      'Hemp-based Supplements': number;
+    };
+    primaryReasons: {
+      'Pain Relief': number;
+      'Anxiety/Stress Management': number;
+      'Sleep Aid': number;
+      'General Wellness': number;
+      'Skin Care': number;
+      'Other': number;
+    };
+    discoveryMethods: {
+      'Social Media': number;
+      'Friend/Family': number;
+      'Search Engine': number;
+      'Advertisement': number;
+      'Other': number;
+    };
+  };
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [stats, setStats] = useState<Stats>({
+    totalCustomers: 0,
+    loyaltyMembers: 0,
+    totalEmails: 0,
+    sentToday: 0,
+    engagementMetrics: {
+      loyaltyRate: 0,
+      averageAge: 0,
+      mostPopularProduct: '',
+      mostCommonReason: '',
+      preferredShoppingChannel: '',
+      topDiscoveryMethod: ''
+    },
+    demographics: {
+      ageGroups: {
+        '18-24': 0,
+        '25-34': 0,
+        '35-44': 0,
+        '45-54': 0,
+        '55+': 0
+      },
+      genderDistribution: {
+        'Male': 0,
+        'Female': 0,
+        'Other': 0
+      },
+      incomeDistribution: {
+        'Under $25,000': 0,
+        '$25,000 - $50,000': 0,
+        '$50,000 - $75,000': 0,
+        '$75,000 - $100,000': 0,
+        'Over $100,000': 0
+      },
+      educationDistribution: {
+        'High School': 0,
+        'Some College': 0,
+        "Bachelor's Degree": 0,
+        "Master's Degree": 0,
+        'Doctorate': 0
+      },
+      productPreferences: {
+        'CBD Oil': 0,
+        'Hemp-infused Edibles': 0,
+        'Topical Creams': 0,
+        'Hemp Flower': 0,
+        'Hemp Clothing/Textiles': 0,
+        'Hemp-based Supplements': 0
+      },
+      primaryReasons: {
+        'Pain Relief': 0,
+        'Anxiety/Stress Management': 0,
+        'Sleep Aid': 0,
+        'General Wellness': 0,
+        'Skin Care': 0,
+        'Other': 0
+      },
+      discoveryMethods: {
+        'Social Media': 0,
+        'Friend/Family': 0,
+        'Search Engine': 0,
+        'Advertisement': 0,
+        'Other': 0
+      }
+    }
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/stats');
+        if (!response.ok) {
+          throw new Error('Failed to fetch stats');
+        }
+        const data = await response.json();
+        setStats(data);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Dashboard
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
+            Overview of your hemp business metrics
+          </p>
+        </header>
+
+        <main>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <DashboardCard
+              title="Total Customers"
+              value={stats.totalCustomers}
+              icon={<UserGroupIcon className="h-6 w-6 text-green-600" />}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            <DashboardCard
+              title="Loyalty Rate"
+              value={`${stats.engagementMetrics.loyaltyRate.toFixed(2)}%`}
+              icon={<HeartIcon className="h-6 w-6 text-red-600" />}
+            />
+            <DashboardCard
+              title="Average Age"
+              value={stats.engagementMetrics.averageAge}
+              icon={<UserIcon className="h-6 w-6 text-blue-600" />}
+            />
+            <DashboardCard
+              title="Most Popular Product"
+              value={stats.engagementMetrics.mostPopularProduct}
+              icon={<ShoppingBagIcon className="h-6 w-6 text-purple-600" />}
+            />
+          </div>
+
+          {/* Demographics Section */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Demographics</h2>
+            <DemographicCharts stats={stats} />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
