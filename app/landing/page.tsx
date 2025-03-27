@@ -13,22 +13,25 @@ export default function LandingPage() {
             fill
             className="object-cover"
             priority
+            quality={100}
           />
-          <div className="absolute inset-0 bg-black bg-opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center text-center px-4">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-            Welcome to HempDash
-          </h1>
-          <p className="text-xl md:text-2xl text-white mb-8 max-w-2xl">
-            Your comprehensive platform for managing hemp customer relationships and analytics
-          </p>
-          <Link
-            href="/"
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg text-lg transition-colors duration-200"
-          >
-            Enter Dashboard
-          </Link>
+          <div className="transform transition-all duration-1000 ease-out opacity-0 translate-y-4 animate-fade-in">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 drop-shadow-lg">
+              Welcome to HempDash
+            </h1>
+            <p className="text-xl md:text-2xl text-white mb-8 max-w-2xl mx-auto drop-shadow-lg">
+              Your comprehensive platform for managing hemp customer relationships and analytics
+            </p>
+            <Link
+              href="/dashboard"
+              className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+            >
+              Enter Dashboard
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -94,7 +97,7 @@ export default function LandingPage() {
             Join HempDash today and take your customer management to the next level.
           </p>
           <Link
-            href="/"
+            href="/dashboard"
             className="bg-white text-green-600 font-semibold py-3 px-8 rounded-lg text-lg hover:bg-gray-100 transition-colors duration-200"
           >
             Get Started Now
